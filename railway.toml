@@ -1,0 +1,16 @@
+# ============================================================
+# Railway deployment configuration
+# https://docs.railway.app/reference/config-as-code
+# ============================================================
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Port the container listens on (matches Nginx EXPOSE 80)
+healthcheckPath = "/"
+# Allow extra time on first deploy (composer install runs at startup)
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

@@ -1,0 +1,103 @@
+version: "3.9"
+
+# ============================================================
+# Docker Compose – Reminder Calendar dev stack
+#
+# Services:
+#   app   – PHP 8.2-FPM + Nginx serving the web application
+#   db    – MySQL 8 database
+#   mail  – Mailpit SMTP trap for local email testing
+#
+# Usage:
+#   docker compose up -d        start all services
+#   docker compose down         stop and remove containers
+#   docker compose logs -f app  tail application logs
+# ============================================================
+
+services:
+  # ----------------------------------------------------------
+  # PHP-FPM + Nginx application container
+  # Mounts the project root so changes are reflected instantly
+  # ----------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: calendar_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - calendar_net
+    ports:
+      - "8080:80"
+
+  # ----------------------------------------------------------
+  # MySQL 8 database
+  # Credentials are intentionally simple for local dev only
+  # ----------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: calendar_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: calendar
+      MYSQL_USER: calendar
+      MYSQL_PASSWORD: calendar
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - calendar_net
+    ports:
+      - "3306:3306"
+
+  # ----------------------------------------------------------
+  # Mailpit – catches all outgoing SMTP mail during development
+  # Web UI:  http://localhost:8025
+  # SMTP:    localhost:1025  (used by PHPMailer in the app)
+  # ----------------------------------------------------------
+  # ----------------------------------------------------------
+  # phpMyAdmin – web-based database UI
+  # Web UI:  http://localhost:8081
+  # ----------------------------------------------------------
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: calendar_pma
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_USER: calendar
+      PMA_PASSWORD: calendar
+    depends_on:
+      - db
+    networks:
+      - calendar_net
+    ports:
+      - "8081:80"
+
+  mail:
+    image: axllent/mailpit:latest
+    container_name: calendar_mail
+    restart: unless-stopped
+    networks:
+      - calendar_net
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web inbox UI
+
+networks:
+  calendar_net:
+    driver: bridge
+
+volumes:
+  db_data:

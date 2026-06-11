@@ -1,0 +1,12 @@
+# Never bake credentials into the image
+.env
+
+# Git history not needed in the image
+.git
+.gitignore
+
+# Composer dependencies are installed at container start
+vendor/
+
+# Local dev only — not needed in production image
+docker-compose.yml

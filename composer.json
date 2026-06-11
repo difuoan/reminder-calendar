@@ -1,0 +1,17 @@
+{
+  "name": "microlab/calendar",
+  "description": "Personal reminder calendar – Microlab PHP exercise",
+  "type": "project",
+  "require": {
+    "php": "^8.2",
+    "phpmailer/phpmailer": "^6.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true
+  }
+}
