@@ -43,5 +43,6 @@ crond -b
 echo ">>> Starting PHP-FPM..."
 php-fpm -D
 
-echo ">>> Starting Nginx..."
+echo ">>> Starting Nginx on port ${PORT:-80}..."
+sed -i "s/listen 80;/listen ${PORT:-80};/" /etc/nginx/http.d/default.conf
 exec nginx -g "daemon off;"
