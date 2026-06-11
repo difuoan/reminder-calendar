@@ -16,21 +16,22 @@ echo ">>> Installing Composer dependencies..."
 composer install --no-interaction --prefer-dist 2>&1
 
 echo ">>> Writing .env from environment variables..."
-cat > /var/www/html/.env << EOF
-DB_HOST=${DB_HOST:-db}
-DB_PORT=${DB_PORT:-3306}
-DB_NAME=${DB_NAME:-calendar}
-DB_USER=${DB_USER:-calendar}
-DB_PASS=${DB_PASS:-calendar}
-MAIL_HOST=${MAIL_HOST:-mail}
-MAIL_PORT=${MAIL_PORT:-1025}
-MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-}
-MAIL_USER=${MAIL_USER:-}
-MAIL_PASS=${MAIL_PASS:-}
-MAIL_FROM=${MAIL_FROM:-noreply@calendar.local}
-MAIL_FROM_NAME=${MAIL_FROM_NAME:-Reminder Calendar}
-APP_URL=${APP_URL:-http://localhost:8080}
-EOF
+{
+  printf "DB_HOST=%s\n"            "${DB_HOST:-db}"
+  printf "DB_PORT=%s\n"            "${DB_PORT:-3306}"
+  printf "DB_NAME=%s\n"            "${DB_NAME:-calendar}"
+  printf "DB_USER=%s\n"            "${DB_USER:-calendar}"
+  printf "DB_PASS=%s\n"            "${DB_PASS:-calendar}"
+  printf "MAIL_HOST=%s\n"          "${MAIL_HOST:-mail}"
+  printf "MAIL_PORT=%s\n"          "${MAIL_PORT:-1025}"
+  printf "MAIL_ENCRYPTION=%s\n"    "${MAIL_ENCRYPTION:-}"
+  printf "MAIL_USER=%s\n"          "${MAIL_USER:-}"
+  printf "MAIL_PASS=%s\n"          "${MAIL_PASS:-}"
+  printf "MAIL_FROM=%s\n"          "${MAIL_FROM:-noreply@calendar.local}"
+  printf "MAIL_FROM_NAME=%s\n"     "${MAIL_FROM_NAME:-Reminder Calendar}"
+  printf "APP_URL=%s\n"            "${APP_URL:-http://localhost:8080}"
+} > /var/www/html/.env
+echo "  DB_HOST resolved to: ${DB_HOST:-db}"
 
 echo ">>> Running database migrations..."
 php /var/www/html/scripts/migrate.php || echo "!!! Migration failed – check DB_HOST / DB_* environment variables"
