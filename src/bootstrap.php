@@ -15,8 +15,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // ── Environment variables ─────────────────────────────────────────────────────
-// Parse .env line-by-line; skip comments and blank lines.
-// This avoids a runtime dependency on a dotenv library.
+// 1. Parse .env file if present (local dev)
+// 2. Fall back to system environment variables (Railway / production)
 $envFile = __DIR__ . '/../.env';
 if (file_exists($envFile)) {
     foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
@@ -28,6 +28,17 @@ if (file_exists($envFile)) {
         $value = trim($value);
         $_ENV[$key] = $value;
         putenv("$key=$value");
+    }
+}
+
+// Merge any system environment variables not already set by .env
+// (PHP-FPM with clear_env=no passes them via $_SERVER / getenv())
+foreach (array_keys($_SERVER) as $key) {
+    if (!isset($_ENV[$key])) {
+        $val = getenv($key);
+        if ($val !== false) {
+            $_ENV[$key] = $val;
+        }
     }
 }
 

@@ -17,6 +17,9 @@ RUN apk add --no-cache nginx curl oniguruma-dev \
 # Copy Nginx virtual-host configuration
 COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 
+# PHP-FPM pool config: keep environment variables (clear_env=no)
+COPY docker/php/www.conf /usr/local/etc/php-fpm.d/zzz-www-override.conf
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
