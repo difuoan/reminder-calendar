@@ -42,6 +42,19 @@ foreach (array_keys($_SERVER) as $key) {
     }
 }
 
+// ── Railway MYSQL_URL parsing ─────────────────────────────────────────────────
+// If Railway injects MYSQL_URL (e.g. mysql://user:pass@host:port/dbname),
+// parse it into the individual DB_* vars the app expects.
+$mysqlUrl = $_ENV['MYSQL_URL'] ?? getenv('MYSQL_URL');
+if ($mysqlUrl) {
+    $p = parse_url($mysqlUrl);
+    $_ENV['DB_HOST'] = $p['host'] ?? 'db';
+    $_ENV['DB_PORT'] = (string) ($p['port'] ?? 3306);
+    $_ENV['DB_USER'] = urldecode($p['user'] ?? 'calendar');
+    $_ENV['DB_PASS'] = urldecode($p['pass'] ?? 'calendar');
+    $_ENV['DB_NAME'] = ltrim($p['path'] ?? '/calendar', '/');
+}
+
 // ── Session ───────────────────────────────────────────────────────────────────
 // Only start a session for web requests (not CLI cron/migrate scripts)
 if (PHP_SAPI !== 'cli' && session_status() === PHP_SESSION_NONE) {
