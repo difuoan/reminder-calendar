@@ -16,7 +16,7 @@ echo ">>> Installing Composer dependencies..."
 composer install --no-interaction --prefer-dist 2>&1
 
 echo ">>> Running database migrations..."
-php /var/www/html/scripts/migrate.php
+php /var/www/html/scripts/migrate.php || echo "!!! Migration failed – check DB_HOST / DB_* environment variables"
 
 echo ">>> Starting reminder cron job..."
 echo '* * * * * php /var/www/html/scripts/send_reminders.php >> /tmp/reminders.log 2>&1' | crontab -
