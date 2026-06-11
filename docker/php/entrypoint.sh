@@ -15,6 +15,23 @@ set -e
 echo ">>> Installing Composer dependencies..."
 composer install --no-interaction --prefer-dist 2>&1
 
+echo ">>> Writing .env from environment variables..."
+cat > /var/www/html/.env << EOF
+DB_HOST=${DB_HOST:-db}
+DB_PORT=${DB_PORT:-3306}
+DB_NAME=${DB_NAME:-calendar}
+DB_USER=${DB_USER:-calendar}
+DB_PASS=${DB_PASS:-calendar}
+MAIL_HOST=${MAIL_HOST:-mail}
+MAIL_PORT=${MAIL_PORT:-1025}
+MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-}
+MAIL_USER=${MAIL_USER:-}
+MAIL_PASS=${MAIL_PASS:-}
+MAIL_FROM=${MAIL_FROM:-noreply@calendar.local}
+MAIL_FROM_NAME=${MAIL_FROM_NAME:-Reminder Calendar}
+APP_URL=${APP_URL:-http://localhost:8080}
+EOF
+
 echo ">>> Running database migrations..."
 php /var/www/html/scripts/migrate.php || echo "!!! Migration failed – check DB_HOST / DB_* environment variables"
 
